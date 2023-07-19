@@ -4,7 +4,8 @@ pipeline {
         stage('Build') { 
             steps {
                 sh '. /etc/profile.d/maven.sh'
-                sh 'mvn -B -DskipTests clean package' 
+                sh 'mvn -v'
+                //sh 'mvn -B -DskipTests clean package' 
             }
         }
     }
