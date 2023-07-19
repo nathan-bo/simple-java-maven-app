@@ -1,11 +1,12 @@
 pipeline {
     agent any
+    tools {
+        maven 'maven'
+    }
     stages {
         stage('Build') { 
             steps {
-                sh '. /etc/profile.d/maven.sh'
-                sh 'mvn -v'
-                //sh 'mvn -B -DskipTests clean package' 
+                sh 'mvn -B -DskipTests clean package' 
             }
         }
     }
