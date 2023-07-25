@@ -30,11 +30,13 @@ pipeline {
     }
     stages {
         stage("Checkout"){
-            steps{
-                env.FAILED_STAGE = env.STAGE_NAME
-                echo " ${env.STAGE_NAME} Stage ".center(61, '=')
-                echo "Checking out the repository..."
-                checkout scm
+            steps {
+                step {
+                    env.FAILED_STAGE = env.STAGE_NAME
+                    echo " ${env.STAGE_NAME} Stage ".center(61, '=')
+                    echo "Checking out the repository..."
+                    checkout scm
+                }
             }
         }
         stage('Build App') { 
