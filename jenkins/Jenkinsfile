@@ -1,13 +1,59 @@
 pipeline {
-    agent any
+    agent {
+        label "!built-in" // it's considered a bad practice to build on the master/built-in node
+    }
     tools {
         maven 'maven'
     }
+    options {
+        skipDefaultCheckout()
+        disableConcurrentBuilds()
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '35', daysToKeepStr: '60', artifactNumToKeepStr: '35')) // avoid storage flood keep up to 35 builds for each branch
+    }
+    triggers {
+        GenericTrigger(
+            genericVariables: [
+                [key: 'refPush', value: '$.changes[0].ref.id'],
+                [key: 'mailTo', value: '$.actor.emailAddress']
+            ],
+
+            causeString: 'Triggered on branch: ' + BRANCH_NAME,
+            token: "simple-java-maven", //webhook token
+            //DEBUG Triggers options:
+            // printContributedVariables: true,
+            // printPostContent: true,
+            // silentResponse: false,
+            regexpFilterText: '$refPush',
+            regexpFilterExpression: '^refs/heads/' + BRANCH_NAME + '$' // Run only for the triggered branch
+        )
+    }
     stages {
-        stage('Build') { 
+        stage("Checkout"){
+            steps{
+                env.FAILED_STAGE = env.STAGE_NAME
+                echo " ${env.STAGE_NAME} Stage ".center(61, '=')
+                echo "Checking out the repository..."
+                checkout scm
+            }
+        }
+        stage('Build App') { 
             steps {
+                env.FAILED_STAGE = env.STAGE_NAME
+                echo " ${env.STAGE_NAME} Stage ".center(61, '=')
+                echo "Building the app using maven..."
                 sh 'mvn -B -DskipTests clean package'
             }
+        }
+    }
+    post{
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+
+        failure{
+            echo "========pipeline execution failed========"
+            echo " Failed in ${env.FAILED_STAGE} stage ".center(61, "_")
         }
     }
 }
