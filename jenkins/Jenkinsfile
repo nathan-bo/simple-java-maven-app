@@ -27,7 +27,7 @@ pipeline {
         )
     }
     stages {
-        stage("Checkout"){
+        stage('Checkout') {
             steps {
                 script {
                     env.FAILED_STAGE = env.STAGE_NAME
@@ -37,24 +37,39 @@ pipeline {
                 }
             }
         }
-        stage('Build App') { 
+        stage('Build') { 
             steps {
                 script {
                     env.FAILED_STAGE = env.STAGE_NAME
                     echo " ${env.STAGE_NAME} Stage ".center(61, '=')
                     echo "Building the app using maven..."
+                    echo "${env.BRANCH_NAME}"
                     sh 'mvn -B -DskipTests clean package'
+                }
+            }
+        }
+        stage('Test') {
+            when { anyOf {
+                expression { BRANCH_NAME == 'origin/master' }
+                expression { env.BRANCH_NAME ==~ 'QA/*' }
+            } }
+            steps {
+                script {
+                    env.FAILED_STAGE = env.STAGE_NAME
+                    echo " ${env.STAGE_NAME} Stage ".center(61, '=')
+                    echo "Testing the app using maven..."
+                    sh 'mvn test'
                 }
             }
         }
     }
     post{
         success{
-            echo "========pipeline executed successfully ========"
+            echo "========Pipeline executed successfully ========"
         }
 
         failure{
-            echo "========pipeline execution failed========"
+            echo "========Pipeline execution failed========"
             echo " Failed in ${env.FAILED_STAGE} stage ".center(61, "_")
         }
     }
