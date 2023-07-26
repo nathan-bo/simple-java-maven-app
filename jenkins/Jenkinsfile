@@ -31,18 +31,22 @@ pipeline {
     stages {
         stage("Checkout"){
             steps {
-                env.FAILED_STAGE = env.STAGE_NAME
-                echo " ${env.STAGE_NAME} Stage ".center(61, '=')
-                echo "Checking out the repository..."
-                checkout scm
+                script {
+                    env.FAILED_STAGE = env.STAGE_NAME
+                    echo " ${env.STAGE_NAME} Stage ".center(61, '=')
+                    echo "Checking out the repository..."
+                    checkout scm
+                }
             }
         }
         stage('Build App') { 
             steps {
-                env.FAILED_STAGE = env.STAGE_NAME
-                echo " ${env.STAGE_NAME} Stage ".center(61, '=')
-                echo "Building the app using maven..."
-                sh 'mvn -B -DskipTests clean package'
+                script {
+                    env.FAILED_STAGE = env.STAGE_NAME
+                    echo " ${env.STAGE_NAME} Stage ".center(61, '=')
+                    echo "Building the app using maven..."
+                    sh 'mvn -B -DskipTests clean package'
+                }
             }
         }
     }
