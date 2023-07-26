@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label "!built-in" // it's considered a bad practice to build on the master/built-in node
-    }
+    agent { any }
     tools {
         maven 'maven'
     }
